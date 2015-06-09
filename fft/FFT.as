@@ -69,12 +69,16 @@ package {
 			if(!inv) swapQuadrant(re, im);
 		}
 		// windowing function using hamming window.
-		public function windowing(data:Vector.<Number>, inv:int):void {
+		public function windowing(data:Vector.<Number>, inv:Boolean = false):void {
 			var len:int = data.length;
 			var pi:Number = Math.PI;
 			for(var i:int=0; i<len; i++) {
-				if(inv == 1) data[i] *= 0.54 - 0.46*Math.cos(2*pi*i/(len - 1));
+				
+				//(4.0/N) * 0.5*(1-Math.cos(2*Math.PI*i/N));
+				if(inv == false) data[i] *= 0.54 - 0.46*Math.cos(2*pi*i/(len - 1));
 				else data[i] /= 0.54 - 0.46*Math.cos(2*pi*i/(len -1));
+				
+				//data[i] *= (4.0/this.n) * 0.5*(1-Math.cos(2*Math.PI*i/this.n));
 			}
 		}
 		// spatial frequency filtering.
@@ -94,6 +98,20 @@ package {
 				}
 			}
 		}
+		
+		public function calculateComplex(re:Vector.<Number>, im:Vector.<Number>):Vector.<Number> {
+			if (re.length != im.length) {
+				throw new Error("Vector length are not equal");
+			}
+			
+			var cl:Vector.<Number> = new Vector.<Number>;
+			for (var i:int = 0; i < re.length; i++) {
+				cl.push(Math.sqrt(re[i] * re[i] + im[i] * im[i]));
+			}
+			
+			return cl;
+		}
+		
 		// Fast Fourier Transform core operation.
 		private function fftCore(re:Vector.<Number>, im:Vector.<Number>, sign:int):void {
 			var h:int, d:int, wr:Number, wi:Number, ik:int, xr:Number, xi:Number, m:int, tmp:Number;
